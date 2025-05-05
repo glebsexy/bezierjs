@@ -1132,21 +1132,30 @@ var Bezier = class {
     pass1.forEach(function(p1) {
       t1 = 0;
       t2 = 0;
-      while (t2 <= 1) {
+      while (t1 < 1) {
+        let found = false;
         for (t2 = t1 + step; t2 <= 1 + step; t2 += step) {
           segment = p1.split(t1, t2);
           if (!segment.simple()) {
             t2 -= step;
             if (abs2(t1 - t2) < step) {
-              return [];
+              break;
             }
             segment = p1.split(t1, t2);
             segment._t1 = utils.map(t1, 0, 1, p1._t1, p1._t2);
             segment._t2 = utils.map(t2, 0, 1, p1._t1, p1._t2);
             pass2.push(segment);
             t1 = t2;
+            found = true;
             break;
           }
+        }
+        if (!found) {
+          segment = p1.split(t1, 1);
+          segment._t1 = utils.map(t1, 0, 1, p1._t1, p1._t2);
+          segment._t2 = p1._t2;
+          pass2.push(segment);
+          break;
         }
       }
       if (t1 < 1) {
